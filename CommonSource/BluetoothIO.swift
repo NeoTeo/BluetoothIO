@@ -52,7 +52,7 @@ class BluetoothIO : NSObject {
     var characteristicsForService: [CBUUID : [CBUUID]]!
     var handlerForCharacteristic: [CBUUID : (CBCharacteristic) throws -> Void]!
     
-    static let sharedInstance : BluetoothIO = {
+    public static let sharedInstance : BluetoothIO = {
         
         let instance = BluetoothIO()
         return instance
