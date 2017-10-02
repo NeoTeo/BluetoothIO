@@ -48,15 +48,30 @@ open class BluetoothIO : NSObject {
     
     var peripheralsWithWantedServices: [CBPeripheral]!
     var wantedServices: [CBUUID]!
+    var maxPeripheralCount: Int?
     
     var characteristicsForService: [CBUUID : [CBUUID]]!
     var handlerForCharacteristic: [CBUUID : (CBCharacteristic) throws -> Void]!
+    
+    var foundPeripheralsHandler: (([CBPeripheral])->Void)?
     
     public static let sharedInstance : BluetoothIO = {
         
         let instance = BluetoothIO()
         return instance
     }()
+    
+    public func discoverPeripherals(with services: [CBUUID], maxPeripheralCount: Int? = nil, handler: @escaping ([CBPeripheral])->Void) {
+        
+        self.maxPeripheralCount = maxPeripheralCount
+        wantedServices = services
+        
+        foundPeripheralsHandler = handler
+        
+        if centralManager == nil {
+            centralManager = CBCentralManager(delegate: self, queue: nil)
+        }
+    }
     
     public func start(_ peripheralName: String, services: [CBUUID], characteristics: [CBUUID : [CBUUID]], handlers: [CBUUID : (CBCharacteristic) throws -> Void] ) {
         
@@ -114,6 +129,12 @@ extension BluetoothIO : CBCentralManagerDelegate {
             print("Bluetooth is off or not initialized.")
             return
         }
+        
+        guard wantedServices != nil else {
+            print("No wanted services.")
+            return
+        }
+        
         central.scanForPeripherals(withServices: wantedServices, options: nil)
         
         print("Searching for BLE devices with services \(String(describing: wantedServices))...")
@@ -153,15 +174,19 @@ extension BluetoothIO : CBCentralManagerDelegate {
         }
         
         // Current assumption is that there is only one peripheral with our requested service uuids.
-        // This means we just choose the last match.
+        // This means we just choose the first match.
         // FIXME: Don't rely on that assumption. Have a (eg. user) resolution if there are multiples.
         if let activePeripheral = activePeripheral {
             print("db: activePeripheral id: \(activePeripheral.identifier)")
-            /// Stop scanning for more devices.
-            centralManager.stopScan()
             
             activePeripheral.delegate = self
             centralManager.connect(activePeripheral, options: nil)
+            
+            // Stop scanning when we've reached the max count.
+            if let maxCount = maxPeripheralCount, peripheralsWithWantedServices.count >= maxCount {
+                centralManager.stopScan()
+                foundPeripheralsHandler?(peripheralsWithWantedServices)
+            }
         }
     }
     

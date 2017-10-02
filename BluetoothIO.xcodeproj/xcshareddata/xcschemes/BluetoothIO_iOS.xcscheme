@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "AB58DE351F75211E00D45242"
-               BuildableName = "BluetoothIO_iOS.framework"
+               BuildableName = "BluetoothIO.framework"
                BlueprintName = "BluetoothIO_iOS"
                ReferencedContainer = "container:BluetoothIO.xcodeproj">
             </BuildableReference>
@@ -44,7 +44,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AB58DE351F75211E00D45242"
-            BuildableName = "BluetoothIO_iOS.framework"
+            BuildableName = "BluetoothIO.framework"
             BlueprintName = "BluetoothIO_iOS"
             ReferencedContainer = "container:BluetoothIO.xcodeproj">
          </BuildableReference>
@@ -67,7 +67,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AB58DE351F75211E00D45242"
-            BuildableName = "BluetoothIO_iOS.framework"
+            BuildableName = "BluetoothIO.framework"
             BlueprintName = "BluetoothIO_iOS"
             ReferencedContainer = "container:BluetoothIO.xcodeproj">
          </BuildableReference>
@@ -85,7 +85,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AB58DE351F75211E00D45242"
-            BuildableName = "BluetoothIO_iOS.framework"
+            BuildableName = "BluetoothIO.framework"
             BlueprintName = "BluetoothIO_iOS"
             ReferencedContainer = "container:BluetoothIO.xcodeproj">
          </BuildableReference>

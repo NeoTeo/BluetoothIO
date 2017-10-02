@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "AB58DE541F75215F00D45242"
-               BuildableName = "BluetoothIO_watchOS.framework"
+               BuildableName = "BluetoothIO.framework"
                BlueprintName = "BluetoothIO_watchOS"
                ReferencedContainer = "container:BluetoothIO.xcodeproj">
             </BuildableReference>
@@ -48,7 +48,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AB58DE541F75215F00D45242"
-            BuildableName = "BluetoothIO_watchOS.framework"
+            BuildableName = "BluetoothIO.framework"
             BlueprintName = "BluetoothIO_watchOS"
             ReferencedContainer = "container:BluetoothIO.xcodeproj">
          </BuildableReference>
@@ -66,7 +66,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AB58DE541F75215F00D45242"
-            BuildableName = "BluetoothIO_watchOS.framework"
+            BuildableName = "BluetoothIO.framework"
             BlueprintName = "BluetoothIO_watchOS"
             ReferencedContainer = "container:BluetoothIO.xcodeproj">
          </BuildableReference>
