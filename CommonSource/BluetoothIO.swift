@@ -71,21 +71,20 @@ open class BluetoothIO : NSObject {
     }()
 
     // Call first to set up.
-    public func setRequirements(peripheralName: String? = nil, services: [CBUUID], characteristicsForService: [CBUUID : [CBUUID]], handlerForCharacteristic: [CBUUID : (CBCharacteristic) throws -> Void] ) {
-        
-        wantedPeripheralName = peripheralName
-        wantedServices = services
-        
-        peripheralsWithWantedServices = []
+    public func set(characteristicsForService: [CBUUID : [CBUUID]], handlerForCharacteristic: [CBUUID : (CBCharacteristic) throws -> Void] ) {
         
         self.characteristicsForService = characteristicsForService
         self.handlerForCharacteristic = handlerForCharacteristic
     }
 
-    public func discoverPeripherals(with services: [CBUUID], maxPeripheralCount: Int? = nil, handler: @escaping (CBPeripheral)->Void) {
+    public func discoverPeripherals(name: String? = nil, serviceIds: [CBUUID], maxPeripheralCount: Int? = nil, handler: @escaping (CBPeripheral)->Void) {
         
+        peripheralsWithWantedServices = []
+        
+        wantedPeripheralName = name
+        wantedServices = serviceIds
+
         self.maxPeripheralCount = maxPeripheralCount
-        wantedServices = services
         
         discoveredPeripheralsHandler = handler
         
@@ -236,6 +235,7 @@ extension BluetoothIO : CBCentralManagerDelegate {
     /** Called on successful connection with peripheral. */
     public func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         
+        print("Central manager did connect to peripheral \(peripheral).")
         print("Discovering services \(String(describing: wantedServices))...")
         
         connectedPeripherals.append(peripheral)
@@ -247,7 +247,7 @@ extension BluetoothIO : CBCentralManagerDelegate {
     
     public func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         
-        print("Disconnected")
+        print("Disconnected peripheral \(peripheral)")
         /// It's now safe to free the peripheral and manager
 //        activePeripheral = nil
         
@@ -271,7 +271,6 @@ extension BluetoothIO : CBPeripheralDelegate {
     
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         
-        
         guard wantedServices != nil else {
             print("No services to look for! Exiting")
             return
@@ -291,7 +290,6 @@ extension BluetoothIO : CBPeripheralDelegate {
         }
     }
     
-    
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         
         guard let wantedCharacteristics = characteristicsForService[service.uuid] else {
@@ -304,18 +302,15 @@ extension BluetoothIO : CBPeripheralDelegate {
         for characteristic in service.characteristics! {
             if wantedCharacteristics.contains(characteristic.uuid) {
                 if characteristic.properties.contains(.notify) {
+                    
                     print("This characteristic will notify of updates.")
-                    // FIXME: We might need to change this from activePeripheral to peripheral
-//                    activePeripheral?.setNotifyValue(true, for: characteristic)
                     peripheral.setNotifyValue(true, for: characteristic)
                 }
                 if characteristic.properties.contains(.read) {
+                    
                     print("This characteristic can be read.")
-                    // FIXME: We might need to change this from activePeripheral to peripheral
-//                    activePeripheral?.readValue(for: characteristic)
                     peripheral.readValue(for: characteristic)
                 }
-                //                activePeripheral.setNotifyValue(true, for: characteristic)
             }
         }
     }
