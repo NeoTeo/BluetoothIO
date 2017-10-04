@@ -82,7 +82,7 @@ open class BluetoothIO : NSObject {
         }
     }
     
-    public func add(handlers: [CBUUID : (CBCharacteristic) throws -> Void]) {
+    public func register(handlers: [CBUUID : (CBCharacteristic) throws -> Void]) {
         characteristicHandlers = handlers
     }
     
@@ -199,27 +199,24 @@ extension BluetoothIO : CBCentralManagerDelegate {
         
         // Current assumption is that there is only one peripheral with our requested service uuids.
         // This means we just choose the first match.
-        // FIXME: Don't rely on that assumption. Have a (eg. user) resolution if there are multiples.
-        // FIXME: Don't connect here, just return/set the found peripherals and let another call do the connecting.
         if let activePeripheral = activePeripheral {
             print("db: activePeripheral id: \(activePeripheral.identifier)")
             
             activePeripheral.delegate = self
-            //centralManager.connect(activePeripheral, options: nil)
+            
             if peripheralsWithWantedServices.contains(peripheral) == false {
                 
                 peripheralsWithWantedServices.append(peripheral)
                 
-                discoveredPeripheralsHandler?(activePeripheral)
+                discoveredPeripheralsHandler?(peripheral)
             }
             
             // Stop scanning when we've reached the max count.
             if let maxCount = maxPeripheralCount, peripheralsWithWantedServices.count >= maxCount {
+                print("Stopping scan for peripherals.")
                 centralManager.stopScan()
                 
             }
-//            discoveredPeripheralsHandler?(peripheralsWithWantedServices)
-            
         }
     }
     
@@ -250,7 +247,9 @@ extension BluetoothIO : CBCentralManagerDelegate {
          })
          */
 
-        centralManager = nil
+        if connectedPeripherals.count == 0 {
+            centralManager = nil
+        }
     }
     
 }
