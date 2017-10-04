@@ -55,8 +55,9 @@ open class BluetoothIO : NSObject {
     var handlerForCharacteristic: [CBUUID : (CBCharacteristic) throws -> Void]!
     
     // Called when a peripheral is discovered.
-    var discoveredPeripheralsHandler: (([CBPeripheral])->Void)?
-    
+//    var discoveredPeripheralsHandler: (([CBPeripheral])->Void)?
+    var discoveredPeripheralsHandler: ((CBPeripheral)->Void)?
+
     // Called when a peripheral is connected.
     var connectedPeripheralHandler: ((CBPeripheral)->Void)?
     
@@ -69,7 +70,7 @@ open class BluetoothIO : NSObject {
         return instance
     }()
     
-    public func discoverPeripherals(with services: [CBUUID], maxPeripheralCount: Int? = nil, handler: @escaping ([CBPeripheral])->Void) {
+    public func discoverPeripherals(with services: [CBUUID], maxPeripheralCount: Int? = nil, handler: @escaping (CBPeripheral)->Void) {
         
         self.maxPeripheralCount = maxPeripheralCount
         wantedServices = services
@@ -205,14 +206,20 @@ extension BluetoothIO : CBCentralManagerDelegate {
             
             activePeripheral.delegate = self
             //centralManager.connect(activePeripheral, options: nil)
-            peripheralsWithWantedServices.append(peripheral)
+            if peripheralsWithWantedServices.contains(peripheral) == false {
+                
+                peripheralsWithWantedServices.append(peripheral)
+                
+                discoveredPeripheralsHandler?(activePeripheral)
+            }
             
             // Stop scanning when we've reached the max count.
             if let maxCount = maxPeripheralCount, peripheralsWithWantedServices.count >= maxCount {
                 centralManager.stopScan()
                 
             }
-            discoveredPeripheralsHandler?(peripheralsWithWantedServices)
+//            discoveredPeripheralsHandler?(peripheralsWithWantedServices)
+            
         }
     }
     
