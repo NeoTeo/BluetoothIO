@@ -317,7 +317,7 @@ extension BluetoothIO : CBPeripheralDelegate {
     
     public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         
-        print("did update value for \(characteristic.uuid).")
+        print("Peripheral \(peripheral) did update value for \(characteristic.uuid).")
         
         /// This is where we would pass the characteristic to the handler.
         if let handler = handlerForCharacteristic[characteristic.uuid] {
