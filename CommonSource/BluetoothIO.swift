@@ -69,7 +69,19 @@ open class BluetoothIO : NSObject {
         let instance = BluetoothIO()
         return instance
     }()
-    
+
+    // Call first to set up.
+    public func setRequirements(peripheralName: String? = nil, services: [CBUUID], characteristicsForService: [CBUUID : [CBUUID]], handlerForCharacteristic: [CBUUID : (CBCharacteristic) throws -> Void] ) {
+        
+        wantedPeripheralName = peripheralName
+        wantedServices = services
+        
+        peripheralsWithWantedServices = []
+        
+        self.characteristicsForService = characteristicsForService
+        self.handlerForCharacteristic = handlerForCharacteristic
+    }
+
     public func discoverPeripherals(with services: [CBUUID], maxPeripheralCount: Int? = nil, handler: @escaping (CBPeripheral)->Void) {
         
         self.maxPeripheralCount = maxPeripheralCount
@@ -82,9 +94,10 @@ open class BluetoothIO : NSObject {
         }
     }
     
-    public func register(handlers: [CBUUID : (CBCharacteristic) throws -> Void]) {
-        characteristicHandlers = handlers
-    }
+    
+//    public func register(handlers: [CBUUID : (CBCharacteristic) throws -> Void]) {
+//        characteristicHandlers = handlers
+//    }
     
     public func connect(peripherals: [CBPeripheral], handler: @escaping (CBPeripheral)->Void) {
         
@@ -95,18 +108,18 @@ open class BluetoothIO : NSObject {
         }
     }
     
-    public func start(_ peripheralName: String, services: [CBUUID], characteristics: [CBUUID : [CBUUID]], handlers: [CBUUID : (CBCharacteristic) throws -> Void] ) {
-        
-        wantedPeripheralName = peripheralName
-        wantedServices = services
-        
-        peripheralsWithWantedServices = []
-        
-        characteristicsForService = characteristics
-        handlerForCharacteristic = handlers
-        
-        centralManager = CBCentralManager(delegate: self, queue: nil)
-    }
+//    public func start(_ peripheralName: String, services: [CBUUID], characteristics: [CBUUID : [CBUUID]], handlers: [CBUUID : (CBCharacteristic) throws -> Void] ) {
+//
+//        wantedPeripheralName = peripheralName
+//        wantedServices = services
+//
+//        peripheralsWithWantedServices = []
+//
+//        characteristicsForService = characteristics
+//        handlerForCharacteristic = handlers
+//
+//        centralManager = CBCentralManager(delegate: self, queue: nil)
+//    }
     
     public func stop() {
         
