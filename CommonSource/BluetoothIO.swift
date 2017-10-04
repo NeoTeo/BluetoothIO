@@ -42,7 +42,8 @@ import CoreBluetooth
 open class BluetoothIO : NSObject {
     
     var centralManager: CBCentralManager!
-    var activePeripheral: CBPeripheral?
+//    var activePeripheral: CBPeripheral?
+    var connectedPeripherals = [CBPeripheral]()
     
     var wantedPeripheralName: String?
     
@@ -53,7 +54,14 @@ open class BluetoothIO : NSObject {
     var characteristicsForService: [CBUUID : [CBUUID]]!
     var handlerForCharacteristic: [CBUUID : (CBCharacteristic) throws -> Void]!
     
-    var foundPeripheralsHandler: (([CBPeripheral])->Void)?
+    // Called when a peripheral is discovered.
+    var discoveredPeripheralsHandler: (([CBPeripheral])->Void)?
+    
+    // Called when a peripheral is connected.
+    var connectedPeripheralHandler: ((CBPeripheral)->Void)?
+    
+    // Map of characteristic uuid to handler.
+    var characteristicHandlers: [CBUUID : (CBCharacteristic) throws -> Void]!
     
     public static let sharedInstance : BluetoothIO = {
         
@@ -66,10 +74,23 @@ open class BluetoothIO : NSObject {
         self.maxPeripheralCount = maxPeripheralCount
         wantedServices = services
         
-        foundPeripheralsHandler = handler
+        discoveredPeripheralsHandler = handler
         
         if centralManager == nil {
             centralManager = CBCentralManager(delegate: self, queue: nil)
+        }
+    }
+    
+    public func add(handlers: [CBUUID : (CBCharacteristic) throws -> Void]) {
+        characteristicHandlers = handlers
+    }
+    
+    public func connect(peripherals: [CBPeripheral], handler: @escaping (CBPeripheral)->Void) {
+        
+        connectedPeripheralHandler = handler
+        
+        for peripheral in peripherals {
+            centralManager.connect(peripheral, options: nil)
         }
     }
     
@@ -92,18 +113,19 @@ open class BluetoothIO : NSObject {
             centralManager.stopScan()
         }
         
-        guard let ap = activePeripheral else { return }
-        
-        /// For each service go through each characteristic and disable notification if active.
-        _ = ap.services?.map { service in
-            service.characteristics?.map { char in
-                guard char.isNotifying == true else { return }
-                ap.setNotifyValue(false, for: char)
+//        guard let ap = activePeripheral else { return }
+        for cp in connectedPeripherals {
+            
+            /// For each service go through each characteristic and disable notification if active.
+            _ = cp.services?.map { service in
+                service.characteristics?.map { char in
+                    guard char.isNotifying == true else { return }
+                    cp.setNotifyValue(false, for: char)
+                }
             }
+            print("Cancelling peripheral connection to \(cp)")
+            centralManager.cancelPeripheralConnection(cp)
         }
-        print("Cancelling peripheral connection to \(ap)")
-        centralManager.cancelPeripheralConnection(ap)
-        
     }
     
     public func pause() {
@@ -147,16 +169,18 @@ extension BluetoothIO : CBCentralManagerDelegate {
         // TODO: look for CBAdvertisementDataServiceUUIDsKey match as well.
         /// See if the device name matches what we're looking for.
         
-        activePeripheral = nil
+        //activePeripheral = nil
+        var activePeripheral: CBPeripheral?
         
         if let wantedPeripheralName = wantedPeripheralName,
             let foundPeripheralName = advertisementData[CBAdvertisementDataLocalNameKey],
             foundPeripheralName as? String == wantedPeripheralName {
 
             activePeripheral = peripheral
+            
             print("\(foundPeripheralName) device found.")
         } else {
-            
+    
             /// No name or name match so check peripheral's service UUIDs against wanted service uuids
             guard let uuidsOfRemotePeripheral = advertisementData[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID] else {
                 print("Peripheral has no service ids. Ignoring.")
@@ -166,7 +190,6 @@ extension BluetoothIO : CBCentralManagerDelegate {
             // If any of the wanted services are found in the current peripheral's services, keep it.
             for uuid in wantedServices {
                 if uuidsOfRemotePeripheral.contains(uuid) {
-                    peripheralsWithWantedServices.append(peripheral)
                     activePeripheral = peripheral
                     break
                 }
@@ -176,17 +199,20 @@ extension BluetoothIO : CBCentralManagerDelegate {
         // Current assumption is that there is only one peripheral with our requested service uuids.
         // This means we just choose the first match.
         // FIXME: Don't rely on that assumption. Have a (eg. user) resolution if there are multiples.
+        // FIXME: Don't connect here, just return/set the found peripherals and let another call do the connecting.
         if let activePeripheral = activePeripheral {
             print("db: activePeripheral id: \(activePeripheral.identifier)")
             
             activePeripheral.delegate = self
-            centralManager.connect(activePeripheral, options: nil)
+            //centralManager.connect(activePeripheral, options: nil)
+            peripheralsWithWantedServices.append(peripheral)
             
             // Stop scanning when we've reached the max count.
             if let maxCount = maxPeripheralCount, peripheralsWithWantedServices.count >= maxCount {
                 centralManager.stopScan()
-                foundPeripheralsHandler?(peripheralsWithWantedServices)
+                
             }
+            discoveredPeripheralsHandler?(peripheralsWithWantedServices)
         }
     }
     
@@ -194,6 +220,9 @@ extension BluetoothIO : CBCentralManagerDelegate {
     public func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         
         print("Discovering services \(String(describing: wantedServices))...")
+        
+        connectedPeripherals.append(peripheral)
+        connectedPeripheralHandler?(peripheral)
         
         /// Request enumeration of peripheral services.
         peripheral.discoverServices(wantedServices)
@@ -203,7 +232,17 @@ extension BluetoothIO : CBCentralManagerDelegate {
         
         print("Disconnected")
         /// It's now safe to free the peripheral and manager
-        activePeripheral = nil
+//        activePeripheral = nil
+        
+        if let idx = connectedPeripherals.index(of: peripheral) {
+            connectedPeripherals.remove(at: idx)
+        }
+        /* If this doesn't work we will need to use
+         let idx = connectedPeripherals.index(where: { (item) -> Bool in
+         item.identifier == peripheral.identifier
+         })
+         */
+
         centralManager = nil
     }
     
@@ -247,11 +286,15 @@ extension BluetoothIO : CBPeripheralDelegate {
             if wantedCharacteristics.contains(characteristic.uuid) {
                 if characteristic.properties.contains(.notify) {
                     print("This characteristic will notify of updates.")
-                    activePeripheral?.setNotifyValue(true, for: characteristic)
+                    // FIXME: We might need to change this from activePeripheral to peripheral
+//                    activePeripheral?.setNotifyValue(true, for: characteristic)
+                    peripheral.setNotifyValue(true, for: characteristic)
                 }
                 if characteristic.properties.contains(.read) {
                     print("This characteristic can be read.")
-                    activePeripheral?.readValue(for: characteristic)
+                    // FIXME: We might need to change this from activePeripheral to peripheral
+//                    activePeripheral?.readValue(for: characteristic)
+                    peripheral.readValue(for: characteristic)
                 }
                 //                activePeripheral.setNotifyValue(true, for: characteristic)
             }
