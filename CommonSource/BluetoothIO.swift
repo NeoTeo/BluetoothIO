@@ -329,7 +329,11 @@ extension BluetoothIO : CBPeripheralDelegate {
         
         for characteristic in foundCharacteristics {
             print("Found characteristic uuid \(characteristic.uuid)")
-            print("The characteristic descriptors are \(String(describing: characteristic.descriptors))")
+
+            // Request further descriptor for this characteristic.
+            // This should be called only when specifically requesting info.
+            peripheral.discoverDescriptors(for: characteristic)
+            
             
             if let wantedCharacteristics = wantedCharacteristics, wantedCharacteristics.contains(characteristic.uuid) {
                 if characteristic.properties.contains(.notify) {
@@ -358,6 +362,10 @@ extension BluetoothIO : CBPeripheralDelegate {
                 print("Error: ", error, "in characteristic handler.")
             }
         }
+    }
+    
+    public func peripheral(_ peripheral: CBPeripheral, didDiscoverDescriptorsFor characteristic: CBCharacteristic, error: Error?) {
+            print("The characteristic \(characteristic) descriptors are \(String(describing: characteristic.descriptors))")
     }
 }
 
