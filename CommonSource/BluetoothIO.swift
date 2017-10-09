@@ -311,9 +311,14 @@ extension BluetoothIO : CBPeripheralDelegate {
             return
         }
         
-        print("Enabling sensors.")
+        guard let foundCharacteristics = service.characteristics else {
+            print("The service \(service.uuid) contained no characteristics.")
+            return
+        }
         
-        for characteristic in service.characteristics! {
+        print("Enabling sensors. There are \(foundCharacteristics.count) characteristics")
+        
+        for characteristic in foundCharacteristics {
             print("Found characteristic uuid \(characteristic.uuid)")
             if wantedCharacteristics.contains(characteristic.uuid) {
                 if characteristic.properties.contains(.notify) {
