@@ -301,6 +301,8 @@ extension BluetoothIO : CBPeripheralDelegate {
     
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         
+        print("didDiscoverCharacteristicsFor \(service.uuid)")
+        
         guard error == nil else {
             print("There was an error discovering characteristics: \(String(describing: error))")
             return
