@@ -309,9 +309,9 @@ extension BluetoothIO : CBPeripheralDelegate {
         print("Enabling sensors.")
         
         for characteristic in service.characteristics! {
+            print("Found characteristic uuid \(characteristic.uuid)")
             if wantedCharacteristics.contains(characteristic.uuid) {
-                if characteristic.properties.contains(.notify) {
-                    
+                if characteristic.properties.contains(.notify) {                    
                     print("This characteristic will notify of updates.")
                     peripheral.setNotifyValue(true, for: characteristic)
                 }
@@ -319,6 +319,9 @@ extension BluetoothIO : CBPeripheralDelegate {
                     
                     print("This characteristic can be read.")
                     peripheral.readValue(for: characteristic)
+                }
+                if characteristic.properties.contains(.write) {
+                    print("This characteristic can be written to.")
                 }
             }
         }
