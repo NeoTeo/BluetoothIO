@@ -301,6 +301,11 @@ extension BluetoothIO : CBPeripheralDelegate {
     
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         
+        guard error != nil else {
+            print("There was an error discovering characteristics: \(String(describing: error))")
+            return
+        }
+        
         guard let wantedCharacteristics = characteristicsForService[service.uuid] else {
             print("No characteristics to look for! Exiting.")
             return
@@ -311,7 +316,7 @@ extension BluetoothIO : CBPeripheralDelegate {
         for characteristic in service.characteristics! {
             print("Found characteristic uuid \(characteristic.uuid)")
             if wantedCharacteristics.contains(characteristic.uuid) {
-                if characteristic.properties.contains(.notify) {                    
+                if characteristic.properties.contains(.notify) {
                     print("This characteristic will notify of updates.")
                     peripheral.setNotifyValue(true, for: characteristic)
                 }
