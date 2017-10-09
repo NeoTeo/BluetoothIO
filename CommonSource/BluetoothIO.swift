@@ -366,6 +366,14 @@ extension BluetoothIO : CBPeripheralDelegate {
     
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverDescriptorsFor characteristic: CBCharacteristic, error: Error?) {
             print("The characteristic \(characteristic) descriptors are \(String(describing: characteristic.descriptors))")
+        guard let tors = characteristic.descriptors else { return }
+        for desc in tors {
+            peripheral.readValue(for: desc)
+        }
+    }
+    
+    public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor descriptor: CBDescriptor, error: Error?) {
+        print("The descriptor \(descriptor.description) for characteristic \(descriptor.characteristic) value was \(descriptor.value)")
     }
 }
 
