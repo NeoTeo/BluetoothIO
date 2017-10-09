@@ -280,14 +280,20 @@ extension BluetoothIO : CBPeripheralDelegate {
     
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         
-        guard wantedServices != nil else {
-            print("No services to look for! Exiting")
+//        guard wantedServices != nil else {
+//            print("No services to look for! Exiting")
+//            return
+//        }
+        print("Evaluating service.")
+
+        guard let services = peripheral.services else {
+            print("Peripheral \(peripheral.identifier) has no services. Returning.")
             return
         }
-        print("Evaluating service.")
         
-        for service in peripheral.services! {
-            if wantedServices!.contains(service.uuid) {
+        for service in services {
+            
+            if let wantedServices = wantedServices, wantedServices.contains(service.uuid) {
                 
                 let wantedCharacteristics = characteristicsForService[service.uuid]
                 /// Request enumeration of service characteristics.
@@ -295,6 +301,7 @@ extension BluetoothIO : CBPeripheralDelegate {
                 
             } else {
                 print("Found other service uuid \(service.uuid)")
+                peripheral.discoverCharacteristics(nil, for: service)
             }
         }
     }
