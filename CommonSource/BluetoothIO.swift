@@ -48,7 +48,7 @@ open class BluetoothIO : NSObject {
     var wantedPeripheralName: String?
     
     var peripheralsWithWantedServices: [CBPeripheral]!
-    var wantedServices: [CBUUID]!
+    var wantedServices: [CBUUID]?
     var maxPeripheralCount: Int?
     
     var characteristicsForService: [CBUUID : [CBUUID]]!
@@ -199,7 +199,8 @@ extension BluetoothIO : CBCentralManagerDelegate {
                 print("Peripheral has no service ids. Ignoring.")
                 return
             }
-            
+         
+            guard let wantedServices = wantedServices else { return }
             // If any of the wanted services are found in the current peripheral's services, keep it.
             for uuid in wantedServices {
                 if uuidsOfRemotePeripheral.contains(uuid) {
