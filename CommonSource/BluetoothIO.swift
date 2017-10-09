@@ -51,7 +51,7 @@ open class BluetoothIO : NSObject {
     var wantedServices: [CBUUID]?
     var maxPeripheralCount: Int?
     
-    var characteristicsForService: [CBUUID : [CBUUID]]!
+    var characteristicsForService: [CBUUID : [CBUUID]]?
     var handlerForCharacteristic: [CBUUID : (CBCharacteristic) throws -> Void]!
     
     // Called when a peripheral is discovered.
@@ -295,7 +295,7 @@ extension BluetoothIO : CBPeripheralDelegate {
             
             if let wantedServices = wantedServices, wantedServices.contains(service.uuid) {
                 
-                let wantedCharacteristics = characteristicsForService[service.uuid]
+                let wantedCharacteristics = characteristicsForService?[service.uuid]
                 /// Request enumeration of service characteristics.
                 peripheral.discoverCharacteristics(wantedCharacteristics, for: service)
                 
@@ -314,11 +314,11 @@ extension BluetoothIO : CBPeripheralDelegate {
             print("There was an error discovering characteristics: \(String(describing: error))")
             return
         }
-        
-        guard let wantedCharacteristics = characteristicsForService[service.uuid] else {
-            print("No characteristics to look for! Exiting.")
-            return
-        }
+        let wantedCharacteristics = characteristicsForService?[service.uuid]
+//        guard let wantedCharacteristics = characteristicsForService?[service.uuid] else {
+//            print("No characteristics to look for! Exiting.")
+//            return
+//        }
         
         guard let foundCharacteristics = service.characteristics else {
             print("The service \(service.uuid) contained no characteristics.")
@@ -329,7 +329,7 @@ extension BluetoothIO : CBPeripheralDelegate {
         
         for characteristic in foundCharacteristics {
             print("Found characteristic uuid \(characteristic.uuid)")
-            if wantedCharacteristics.contains(characteristic.uuid) {
+            if let wantedCharacteristics = wantedCharacteristics, wantedCharacteristics.contains(characteristic.uuid) {
                 if characteristic.properties.contains(.notify) {
                     print("This characteristic will notify of updates.")
                     peripheral.setNotifyValue(true, for: characteristic)
