@@ -329,6 +329,8 @@ extension BluetoothIO : CBPeripheralDelegate {
         
         for characteristic in foundCharacteristics {
             print("Found characteristic uuid \(characteristic.uuid)")
+            print("The characteristic descriptors are \(String(describing: characteristic.descriptors))")
+            
             if let wantedCharacteristics = wantedCharacteristics, wantedCharacteristics.contains(characteristic.uuid) {
                 if characteristic.properties.contains(.notify) {
                     print("This characteristic will notify of updates.")
