@@ -179,6 +179,13 @@ extension BluetoothIO : CBCentralManagerDelegate {
     public func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         print("centralManager: didDiscover called.")
         
+        if let peripheralName = advertisementData[CBAdvertisementDataLocalNameKey] {
+            print("centralManager: Peripheral name is \(peripheralName)")
+        }
+        
+        print("centralManager: Peripheral name2 is \(String(describing: peripheral.name)) and id is \(peripheral.identifier)")
+        
+
         // TODO: look for CBAdvertisementDataServiceUUIDsKey match as well.
         /// See if the device name matches what we're looking for.
         
