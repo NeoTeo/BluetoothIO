@@ -77,7 +77,7 @@ open class BluetoothIO : NSObject {
         self.handlerForCharacteristic = handlerForCharacteristic
     }
 
-    public func discoverPeripherals(name: String? = nil, serviceIds: [CBUUID], maxPeripheralCount: Int? = nil, handler: @escaping (CBPeripheral)->Void) {
+    public func discoverPeripherals(name: String? = nil, serviceIds: [CBUUID]?, maxPeripheralCount: Int? = nil, handler: @escaping (CBPeripheral)->Void) {
         
         peripheralsWithWantedServices = []
         
@@ -165,10 +165,10 @@ extension BluetoothIO : CBCentralManagerDelegate {
             return
         }
         
-        guard wantedServices != nil else {
-            print("No wanted services.")
-            return
-        }
+//        guard wantedServices != nil else {
+//            print("No wanted services.")
+//            return
+//        }
         
         central.scanForPeripherals(withServices: wantedServices, options: nil)
         
