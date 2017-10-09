@@ -184,7 +184,7 @@ extension BluetoothIO : CBCentralManagerDelegate {
         }
         
         print("centralManager: Peripheral name2 is \(String(describing: peripheral.name)) and id is \(peripheral.identifier)")
-        
+        print("centralManager: peripheral provides the following service uuids: \(peripheral.services)")
 
         // TODO: look for CBAdvertisementDataServiceUUIDsKey match as well.
         /// See if the device name matches what we're looking for.
