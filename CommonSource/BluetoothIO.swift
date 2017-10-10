@@ -54,11 +54,10 @@ open class BluetoothIO : NSObject {
     var characteristicsForService: [CBUUID : [CBUUID]]?
     var handlerForCharacteristic: [CBUUID : (CBCharacteristic) throws -> Void]!
     
-    // Called when a peripheral is discovered.
-//    var discoveredPeripheralsHandler: (([CBPeripheral])->Void)?
+    // Methods for handling the discovery of Peripherals, Services and Characteristics.
     var discoveredPeripheralsHandler: ((CBPeripheral)->Void)?
-
     var discoveredServicesHandler: (([CBService]?)->Void)?
+    var discoveredCharacteristicsHandler: (([CBCharacteristic]?)->Void)?
     
     // Called when a peripheral is connected.
     var connectedPeripheralHandler: ((CBPeripheral)->Void)?
@@ -102,6 +101,13 @@ open class BluetoothIO : NSObject {
         
         peripheral.discoverServices(wantedServices)
         
+    }
+    
+    public func discoverCharacteristics(wanted: [CBUUID]? = nil, for service: CBService, handler: @escaping ([CBCharacteristic]?)->Void) {
+        discoveredCharacteristicsHandler = handler
+        
+        // peripheral.discoverCharacteristics(wantedCharacteristics, for: service)
+        service.peripheral.discoverCharacteristics(wanted, for: service)
     }
 //    public func register(handlers: [CBUUID : (CBCharacteristic) throws -> Void]) {
 //        characteristicHandlers = handlers
@@ -309,9 +315,9 @@ extension BluetoothIO : CBPeripheralDelegate {
             
             matchingServices = matchingServices ?? [CBService]()
             matchingServices!.append(service)
-            let wantedCharacteristics = characteristicsForService?[service.uuid]
+            //teotemp let wantedCharacteristics = characteristicsForService?[service.uuid]
             /// Request enumeration of service characteristics.
-            peripheral.discoverCharacteristics(wantedCharacteristics, for: service)
+            //teotemp peripheral.discoverCharacteristics(wantedCharacteristics, for: service)
         }
         
         discoveredServicesHandler?(matchingServices)
