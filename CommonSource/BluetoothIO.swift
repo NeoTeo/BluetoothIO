@@ -64,6 +64,7 @@ open class BluetoothIO : NSObject {
     // Map of characteristic uuid to handler.
     var characteristicHandlers: [CBUUID : (CBCharacteristic) throws -> Void]!
     
+    
     public static let sharedInstance : BluetoothIO = {
         
         let instance = BluetoothIO()
@@ -332,7 +333,7 @@ extension BluetoothIO : CBPeripheralDelegate {
 
             // Request further descriptor for this characteristic.
             // This should be called only when specifically requesting info.
-            peripheral.discoverDescriptors(for: characteristic)
+//            peripheral.discoverDescriptors(for: characteristic)
             
             
             if let wantedCharacteristics = wantedCharacteristics, wantedCharacteristics.contains(characteristic.uuid) {
@@ -357,13 +358,26 @@ extension BluetoothIO : CBPeripheralDelegate {
         print("Peripheral \(peripheral) did update value for \(characteristic.uuid).")
         
         /// This is where we would pass the characteristic to the handler.
-        if let handler = handlerForCharacteristic[characteristic.uuid] {
-            do { try handler(characteristic) } catch {
-                print("Error: ", error, "in characteristic handler.")
-            }
+        do { try handlerForCharacteristic[characteristic.uuid]?(characteristic) } catch {
+            print("Error: ", error, "in characteristic handler.")
         }
+        
     }
     
+    public func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
+        guard error == nil else {
+            print("There was an error writing to the characteristic \(characteristic): \(String(describing: error))")
+            return
+        }
+        
+        do { try handlerForCharacteristic[characteristic.uuid]?(characteristic) }
+        catch {
+            print("Error: ", error, "in characteristic write handler.")
+        }
+        
+    }
+    
+    // MARK: descriptor discovery and updating methods. Currently for debugging only.
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverDescriptorsFor characteristic: CBCharacteristic, error: Error?) {
             print("The characteristic \(characteristic) descriptors are \(String(describing: characteristic.descriptors))")
         guard let tors = characteristic.descriptors else { return }
@@ -373,7 +387,7 @@ extension BluetoothIO : CBPeripheralDelegate {
     }
     
     public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor descriptor: CBDescriptor, error: Error?) {
-        print("The descriptor \(descriptor.description) for characteristic \(descriptor.characteristic) value was \(descriptor.value)")
+        print("The descriptor \(descriptor.description) for characteristic \(descriptor.characteristic) value was \(String(describing: descriptor.value))")
     }
 }
 
