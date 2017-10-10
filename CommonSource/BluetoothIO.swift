@@ -106,6 +106,7 @@ open class BluetoothIO : NSObject {
     public func discoverCharacteristics(wanted: [CBUUID]? = nil, for service: CBService, handler: @escaping ([CBCharacteristic]?)->Void) {
         discoveredCharacteristicsHandler = handler
         
+        print("btio: discoverCharacteristics called.")
         // peripheral.discoverCharacteristics(wantedCharacteristics, for: service)
         service.peripheral.discoverCharacteristics(wanted, for: service)
     }
