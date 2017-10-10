@@ -74,9 +74,17 @@ open class BluetoothIO : NSObject {
 
     // Call first to set up.
     
-    public func set(characteristicsForService: [CBUUID : [CBUUID]], handlerForCharacteristic: [CBUUID : (CBCharacteristic) throws -> Void] ) {
-        
-        self.characteristicsForService = characteristicsForService
+//    public func set(characteristicsForService: [CBUUID : [CBUUID]], handlerForCharacteristic: [CBUUID : (CBCharacteristic) throws -> Void] ) {
+//
+//        self.characteristicsForService = characteristicsForService
+//        self.handlerForCharacteristic = handlerForCharacteristic
+//    }
+
+    public func set(handlerForCharacteristic: [CBUUID : (CBCharacteristic) throws -> Void] ) {
+        // FIXME: make this so that we can add rather than replace.
+//        if self.handlerForCharacteristic != nil {
+//            self.handlerForCharacteristic.merge(handlerForCharacteristic, uniquingKeysWith: <#T##((CBCharacteristic) throws -> Void, (CBCharacteristic) throws -> Void) throws -> (CBCharacteristic) throws -> Void#>)
+//        }
         self.handlerForCharacteristic = handlerForCharacteristic
     }
 
