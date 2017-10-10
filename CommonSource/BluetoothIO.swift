@@ -58,6 +58,8 @@ open class BluetoothIO : NSObject {
 //    var discoveredPeripheralsHandler: (([CBPeripheral])->Void)?
     var discoveredPeripheralsHandler: ((CBPeripheral)->Void)?
 
+    var discoveredServicesHandler: (([CBService]?)->Void)?
+    
     // Called when a peripheral is connected.
     var connectedPeripheralHandler: ((CBPeripheral)->Void)?
     
@@ -94,7 +96,13 @@ open class BluetoothIO : NSObject {
         }
     }
     
-    
+    public func discoverServices(wantedServices: [CBUUID]? = nil, for peripheral: CBPeripheral, handler: @escaping ([CBService]?)->Void) {
+        
+        discoveredServicesHandler = handler
+        
+        peripheral.discoverServices(wantedServices)
+        
+    }
 //    public func register(handlers: [CBUUID : (CBCharacteristic) throws -> Void]) {
 //        characteristicHandlers = handlers
 //    }
@@ -252,7 +260,7 @@ extension BluetoothIO : CBCentralManagerDelegate {
         connectedPeripheralHandler?(peripheral)
         
         /// Request enumeration of peripheral services.
-        peripheral.discoverServices(wantedServices)
+        //teotemp peripheral.discoverServices(wantedServices)
     }
     
     public func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
@@ -292,23 +300,26 @@ extension BluetoothIO : CBPeripheralDelegate {
             return
         }
         
+        var matchingServices: [CBService]?
+        
         for service in services {
+            // Skip if we are looking for specific services and this service is not one of them.
+            if let wantedServices = wantedServices,
+                wantedServices.contains(service.uuid) == false { continue }
             
-            if let wantedServices = wantedServices, wantedServices.contains(service.uuid) {
-                
-                let wantedCharacteristics = characteristicsForService?[service.uuid]
-                /// Request enumeration of service characteristics.
-                peripheral.discoverCharacteristics(wantedCharacteristics, for: service)
-                
-            } else {
-                print("Found other service uuid \(service.uuid)")
-                peripheral.discoverCharacteristics(nil, for: service)
-            }
+            matchingServices = matchingServices ?? [CBService]()
+            matchingServices!.append(service)
+            let wantedCharacteristics = characteristicsForService?[service.uuid]
+            /// Request enumeration of service characteristics.
+            peripheral.discoverCharacteristics(wantedCharacteristics, for: service)
         }
+        
+        discoveredServicesHandler?(matchingServices)
     }
     
+    // FIXME: rewrite this to return the discovered characteristics rather than just calling them.
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        
+        print(">>>>>>")
         print("didDiscoverCharacteristicsFor \(service.uuid)")
         
         guard error == nil else {
@@ -339,18 +350,19 @@ extension BluetoothIO : CBPeripheralDelegate {
             if let wantedCharacteristics = wantedCharacteristics, wantedCharacteristics.contains(characteristic.uuid) {
                 if characteristic.properties.contains(.notify) {
                     print("This characteristic will notify of updates.")
-                    peripheral.setNotifyValue(true, for: characteristic)
+                    //peripheral.setNotifyValue(true, for: characteristic)
                 }
                 if characteristic.properties.contains(.read) {
                     
                     print("This characteristic can be read.")
-                    peripheral.readValue(for: characteristic)
+                    //peripheral.readValue(for: characteristic)
                 }
                 if characteristic.properties.contains(.write) {
                     print("This characteristic can be written to.")
                 }
             }
         }
+        print("<<<<<<")
     }
     
     public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
