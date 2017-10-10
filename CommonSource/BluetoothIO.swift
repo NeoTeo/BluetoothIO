@@ -73,6 +73,7 @@ open class BluetoothIO : NSObject {
     }()
 
     // Call first to set up.
+    
     public func set(characteristicsForService: [CBUUID : [CBUUID]], handlerForCharacteristic: [CBUUID : (CBCharacteristic) throws -> Void] ) {
         
         self.characteristicsForService = characteristicsForService
@@ -105,6 +106,8 @@ open class BluetoothIO : NSObject {
     
     public func discoverCharacteristics(wanted: [CBUUID]? = nil, for service: CBService, handler: @escaping ([CBCharacteristic]?)->Void) {
         discoveredCharacteristicsHandler = handler
+    
+        if let wanted = wanted { characteristicsForService = [service.uuid : wanted] }
         
         print("btio: discoverCharacteristics called.")
         // peripheral.discoverCharacteristics(wantedCharacteristics, for: service)
@@ -345,30 +348,40 @@ extension BluetoothIO : CBPeripheralDelegate {
         }
         
         print("Enabling sensors. There are \(foundCharacteristics.count) characteristics")
+
+        var matchingCharacteristics: [CBCharacteristic]?
         
         for characteristic in foundCharacteristics {
             print("Found characteristic uuid \(characteristic.uuid)")
 
             // Request further descriptor for this characteristic.
             // This should be called only when specifically requesting info.
-//            peripheral.discoverDescriptors(for: characteristic)
+//teotest            peripheral.discoverDescriptors(for: characteristic)
+            // Skip if we are looking for specific services and this service is not one of them.
+//            if let wantedServices = wantedServices,
+//                wantedServices.contains(service.uuid) == false { continue }
             
+            if let wantedCharacteristics = wantedCharacteristics,
+                wantedCharacteristics.contains(characteristic.uuid) == false { continue }
+        
+            matchingCharacteristics = matchingCharacteristics ?? [CBCharacteristic]()
+            matchingCharacteristics?.append(characteristic)
             
-            if let wantedCharacteristics = wantedCharacteristics, wantedCharacteristics.contains(characteristic.uuid) {
-                if characteristic.properties.contains(.notify) {
-                    print("This characteristic will notify of updates.")
-                    //peripheral.setNotifyValue(true, for: characteristic)
-                }
-                if characteristic.properties.contains(.read) {
-                    
-                    print("This characteristic can be read.")
-                    //peripheral.readValue(for: characteristic)
-                }
-                if characteristic.properties.contains(.write) {
-                    print("This characteristic can be written to.")
-                }
+            if characteristic.properties.contains(.notify) {
+                print("This characteristic will notify of updates.")
+                //peripheral.setNotifyValue(true, for: characteristic)
+            }
+            if characteristic.properties.contains(.read) {
+                
+                print("This characteristic can be read.")
+                //peripheral.readValue(for: characteristic)
+            }
+            if characteristic.properties.contains(.write) {
+                print("This characteristic can be written to.")
             }
         }
+        
+        discoveredCharacteristicsHandler?(matchingCharacteristics)
         print("<<<<<<")
     }
     
