@@ -81,6 +81,10 @@ open class BluetoothIO : NSObject {
 //        self.handlerForCharacteristic = handlerForCharacteristic
 //    }
 
+    public func set(handlerForDisconnection: ((CBPeripheral)->Void)?) {
+        disconnectedPeripheralHandler = handlerForDisconnection
+    }
+    
     public func set(handlerForCharacteristic: [CBUUID : (CBCharacteristic) throws -> Void] ) {
         // FIXME: make this so that we can add rather than replace.
 //        if self.handlerForCharacteristic != nil {
