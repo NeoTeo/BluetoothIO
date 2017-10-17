@@ -61,6 +61,7 @@ open class BluetoothIO : NSObject {
     
     // Called when a peripheral is connected.
     var connectedPeripheralHandler: ((CBPeripheral)->Void)?
+    var disconnectedPeripheralHandler: ((CBPeripheral)->Void)?
     
     // Map of characteristic uuid to handler.
     var characteristicHandlers: [CBUUID : (CBCharacteristic) throws -> Void]!
@@ -284,18 +285,14 @@ extension BluetoothIO : CBCentralManagerDelegate {
     public func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         
         print("Disconnected peripheral \(peripheral)")
-        /// It's now safe to free the peripheral and manager
-//        activePeripheral = nil
         
+        disconnectedPeripheralHandler?(peripheral)
+        
+        /// It's now safe to free the peripheral and manager
         if let idx = connectedPeripherals.index(of: peripheral) {
             connectedPeripherals.remove(at: idx)
         }
-        /* If this doesn't work we will need to use
-         let idx = connectedPeripherals.index(where: { (item) -> Bool in
-         item.identifier == peripheral.identifier
-         })
-         */
-
+        
         if connectedPeripherals.count == 0 {
             centralManager = nil
         }
