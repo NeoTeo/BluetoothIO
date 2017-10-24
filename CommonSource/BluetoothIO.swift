@@ -107,6 +107,10 @@ open class BluetoothIO : NSObject {
         if centralManager == nil {
             centralManager = CBCentralManager(delegate: self, queue: nil)
         }
+        
+        // Start scanning for the wanted services.
+        centralManager.scanForPeripherals(withServices: wantedServices, options: nil)
+        print("discoverPeripherals searching for BLE devices with services \(String(describing: wantedServices))...")
     }
     
     public func discoverServices(wantedServices: [CBUUID]? = nil, for peripheral: CBPeripheral, handler: @escaping ([CBService]?)->Void) {
@@ -197,14 +201,9 @@ extension BluetoothIO : CBCentralManagerDelegate {
             return
         }
         
-//        guard wantedServices != nil else {
-//            print("No wanted services.")
-//            return
-//        }
+        //central.scanForPeripherals(withServices: wantedServices, options: nil)
         
-        central.scanForPeripherals(withServices: wantedServices, options: nil)
-        
-        print("Searching for BLE devices with services \(String(describing: wantedServices))...")
+        //print("Searching for BLE devices with services \(String(describing: wantedServices))...")
         
     }
     
