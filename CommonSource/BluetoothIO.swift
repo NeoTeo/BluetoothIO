@@ -58,6 +58,9 @@ open class BluetoothIO : NSObject {
     var characteristicsForService: [CBUUID : [CBUUID]]?
     var handlerForCharacteristic: [CBUUID : (CBCharacteristic) throws -> Void]!
     
+    // Called on succesful startup
+    var bluetoothIOStartedHandler: (()->Void)?
+    
     // Methods for handling the discovery of Peripherals, Services and Characteristics.
     var discoveredPeripheralsHandler: ((CBPeripheral)->Void)?
     var discoveredServicesHandler: (([CBService]?)->Void)?
@@ -167,6 +170,14 @@ open class BluetoothIO : NSObject {
 //        centralManager = CBCentralManager(delegate: self, queue: nil)
 //    }
     
+    public func start(handler: @escaping ()->Void) {
+        
+        bluetoothIOStartedHandler = handler
+        // Creation of the central manager causes its centralManagerDidUpdateState to be called
+        // so make sure the handler is set before creation.
+        centralManager = CBCentralManager(delegate: self, queue: nil)
+    }
+    
     public func stop() {
         
         if centralManager.isScanning {
@@ -206,15 +217,18 @@ extension BluetoothIO : CBCentralManagerDelegate {
     /** Scan for Bluetooth Low Energy devices. */
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
         
-        guard central.state == .poweredOn else {
-            
-            print("Bluetooth is off or not initialized.")
-            return
+        switch central.state {
+        case .poweredOn:
+            print("BluetoothIO state changed to ON.")
+            bluetoothIOStartedHandler?()
+            //        central.scanForPeripherals(withServices: wantedServices, options: nil)
+            //        print("centralManagerDidUpdateState searching for BLE devices with services \(String(describing: wantedServices))...")
+
+        case .poweredOff:
+            print("BluetoothIO state changed to OFF.")
+        default:
+            print("BluetoothIO unsupported state change.")
         }
-        
-        central.scanForPeripherals(withServices: wantedServices, options: nil)
-        print("centralManagerDidUpdateState searching for BLE devices with services \(String(describing: wantedServices))...")
-        
     }
     
     public func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
