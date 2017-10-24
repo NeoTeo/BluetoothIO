@@ -38,7 +38,7 @@ import CoreBluetooth
 // TODO: Need to enable discovery by uuid, not just name.
 // TODO: Need to distinguish between a characteristic that has a fixed value and request it
 // and one that is dynamic and handle updates.
-enum BluetoothIOError : Error {
+public enum BluetoothIOError : Error {
     case btNotTurnedOn
     case unknownError
 }
@@ -99,7 +99,7 @@ open class BluetoothIO : NSObject {
 
     public func discoverPeripherals(name: String? = nil, serviceIds: [CBUUID]?, maxPeripheralCount: Int? = nil, handler: @escaping (CBPeripheral)->Void) throws {
         
-        guard centralManager.state == .poweredOn else { throw BluetoothIOError.btNotTurnedOn }
+        guard centralManager?.state == .poweredOn else { throw BluetoothIOError.btNotTurnedOn }
         
         peripheralsWithWantedServices = []
         
