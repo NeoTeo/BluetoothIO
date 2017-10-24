@@ -38,6 +38,10 @@ import CoreBluetooth
 // TODO: Need to enable discovery by uuid, not just name.
 // TODO: Need to distinguish between a characteristic that has a fixed value and request it
 // and one that is dynamic and handle updates.
+enum BluetoothIOError : Error {
+    case btNotTurnedOn
+    case unknownError
+}
 
 open class BluetoothIO : NSObject {
     
@@ -93,7 +97,9 @@ open class BluetoothIO : NSObject {
         self.handlerForCharacteristic = handlerForCharacteristic
     }
 
-    public func discoverPeripherals(name: String? = nil, serviceIds: [CBUUID]?, maxPeripheralCount: Int? = nil, handler: @escaping (CBPeripheral)->Void) {
+    public func discoverPeripherals(name: String? = nil, serviceIds: [CBUUID]?, maxPeripheralCount: Int? = nil, handler: @escaping (CBPeripheral)->Void) throws {
+        
+        guard centralManager.state == .poweredOn else { throw BluetoothIOError.btNotTurnedOn }
         
         peripheralsWithWantedServices = []
         
@@ -104,13 +110,18 @@ open class BluetoothIO : NSObject {
         
         discoveredPeripheralsHandler = handler
         
+        // Creation of the central manager causes its centralManagerDidUpdateState to be called.
         if centralManager == nil {
             centralManager = CBCentralManager(delegate: self, queue: nil)
         }
         
+        
+        if centralManager.isScanning == true { print("Warning: BT was already scanning.") }
+        
         // Start scanning for the wanted services.
         centralManager.scanForPeripherals(withServices: wantedServices, options: nil)
         print("discoverPeripherals searching for BLE devices with services \(String(describing: wantedServices))...")
+        
     }
     
     public func discoverServices(wantedServices: [CBUUID]? = nil, for peripheral: CBPeripheral, handler: @escaping ([CBService]?)->Void) {
@@ -201,9 +212,8 @@ extension BluetoothIO : CBCentralManagerDelegate {
             return
         }
         
-        //central.scanForPeripherals(withServices: wantedServices, options: nil)
-        
-        //print("Searching for BLE devices with services \(String(describing: wantedServices))...")
+        central.scanForPeripherals(withServices: wantedServices, options: nil)
+        print("centralManagerDidUpdateState searching for BLE devices with services \(String(describing: wantedServices))...")
         
     }
     
