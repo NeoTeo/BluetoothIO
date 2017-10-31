@@ -123,7 +123,7 @@ open class BluetoothIO : NSObject {
         
         // Start scanning for the wanted services.
         centralManager.scanForPeripherals(withServices: wantedServices, options: nil)
-        print("discoverPeripherals searching for BLE devices with services \(String(describing: wantedServices))...")
+        print("BluetoothIO discoverPeripherals searching for BLE devices with services \(String(describing: wantedServices))...")
         
     }
     
@@ -140,7 +140,7 @@ open class BluetoothIO : NSObject {
     
         if let wanted = wanted { characteristicsForService = [service.uuid : wanted] }
         
-        print("btio: discoverCharacteristics called.")
+        print("BluetoothIO: discoverCharacteristics called.")
         // peripheral.discoverCharacteristics(wantedCharacteristics, for: service)
         service.peripheral.discoverCharacteristics(wanted, for: service)
     }
@@ -194,7 +194,7 @@ open class BluetoothIO : NSObject {
                     cp.setNotifyValue(false, for: char)
                 }
             }
-            print("Cancelling peripheral connection to \(cp)")
+            print("BluetoothIO Cancelling peripheral connection to \(cp)")
             centralManager.cancelPeripheralConnection(cp)
         }
     }
@@ -232,13 +232,13 @@ extension BluetoothIO : CBCentralManagerDelegate {
     }
     
     public func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
-        print("centralManager: didDiscover called.")
+        print("BluetoothIO: didDiscover called.")
         
         if let peripheralName = advertisementData[CBAdvertisementDataLocalNameKey] {
-            print("centralManager: Peripheral name is \(peripheralName)")
+            print("BluetoothIO: Peripheral name is \(peripheralName)")
         }
         
-        print("centralManager: Peripheral name2 is \(String(describing: peripheral.name)) and id is \(peripheral.identifier)")
+        print("BluetoothIO: Peripheral name2 is \(String(describing: peripheral.name)) and id is \(peripheral.identifier)")
         
 
         // TODO: look for CBAdvertisementDataServiceUUIDsKey match as well.
@@ -258,11 +258,11 @@ extension BluetoothIO : CBCentralManagerDelegate {
     
             /// No name or name match so check peripheral's service UUIDs against wanted service uuids
             guard let uuidsOfRemotePeripheral = advertisementData[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID] else {
-                print("Peripheral has no service ids. Ignoring.")
+                print("BluetoothIO: Peripheral has no service ids. Ignoring.")
                 return
             }
          
-            print("centralManager: peripheral provides the following service uuids: \(uuidsOfRemotePeripheral)")
+            print("BluetoothIO: peripheral provides the following service uuids: \(uuidsOfRemotePeripheral)")
             guard let wantedServices = wantedServices else { return }
             // If any of the wanted services are found in the current peripheral's services, keep it.
             for uuid in wantedServices {
@@ -289,7 +289,7 @@ extension BluetoothIO : CBCentralManagerDelegate {
             
             // Stop scanning when we've reached the max count.
             if let maxCount = maxPeripheralCount, peripheralsWithWantedServices.count >= maxCount {
-                print("Stopping scan for peripherals.")
+                print("BluetoothIO Stopping scan for peripherals.")
                 centralManager.stopScan()
                 
             }
@@ -299,14 +299,10 @@ extension BluetoothIO : CBCentralManagerDelegate {
     /** Called on successful connection with peripheral. */
     public func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         
-        print("Central manager did connect to peripheral \(peripheral).")
-        print("Discovering services \(String(describing: wantedServices))...")
+        print("BluetoothIO did connect to peripheral \(peripheral).")
         
         connectedPeripherals.append(peripheral)
         connectedPeripheralHandler?(peripheral)
-        
-        /// Request enumeration of peripheral services.
-        //teotemp peripheral.discoverServices(wantedServices)
     }
     
     public func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
@@ -315,7 +311,7 @@ extension BluetoothIO : CBCentralManagerDelegate {
     
     public func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         
-        print("Disconnected peripheral \(peripheral)")
+        print("BluetoothIO Disconnected peripheral \(peripheral)")
         
         disconnectedPeripheralHandler?(peripheral)
         
