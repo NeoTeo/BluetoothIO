@@ -286,13 +286,14 @@ extension BluetoothIO : CBCentralManagerDelegate {
                 
                 discoveredPeripheralsHandler?(peripheral)
             }
-            
+            /*
             // Stop scanning when we've reached the max count.
             if let maxCount = maxPeripheralCount, peripheralsWithWantedServices.count >= maxCount {
                 print("Stopping scan for peripherals.")
                 centralManager.stopScan()
                 
             }
+             */
         }
     }
     
