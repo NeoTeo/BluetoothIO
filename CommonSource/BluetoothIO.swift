@@ -309,6 +309,10 @@ extension BluetoothIO : CBCentralManagerDelegate {
         //teotemp peripheral.discoverServices(wantedServices)
     }
     
+    public func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+        print("BluetoothIO: failed to connect to peripheral with error \(String(describing: error))")
+    }
+    
     public func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         
         print("Disconnected peripheral \(peripheral)")
