@@ -46,7 +46,7 @@ public enum BluetoothIOError : Error {
 open class BluetoothIO : NSObject {
     
     var centralManager: CBCentralManager!
-//    var activePeripheral: CBPeripheral?
+    var activePeripheral: CBPeripheral?
     var connectedPeripherals = [CBPeripheral]()
     
     var wantedPeripheralName: String?
@@ -244,8 +244,8 @@ extension BluetoothIO : CBCentralManagerDelegate {
         // TODO: look for CBAdvertisementDataServiceUUIDsKey match as well.
         /// See if the device name matches what we're looking for.
         
-        //activePeripheral = nil
-        var activePeripheral: CBPeripheral?
+        activePeripheral = nil
+//        var activePeripheral: CBPeripheral?
         
         if let wantedPeripheralName = wantedPeripheralName,
             let foundPeripheralName = advertisementData[CBAdvertisementDataLocalNameKey],
