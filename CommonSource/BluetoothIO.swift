@@ -80,6 +80,7 @@ open class BluetoothIO : NSObject {
         return instance
     }()
 
+    let serialQueue = DispatchQueue(label: "handler serial queue")
     // Call first to set up.
     
 //    public func set(characteristicsForService: [CBUUID : [CBUUID]], handlerForCharacteristic: [CBUUID : (CBCharacteristic) throws -> Void] ) {
@@ -221,7 +222,10 @@ extension BluetoothIO : CBCentralManagerDelegate {
         switch central.state {
         case .poweredOn:
             print("BluetoothIO state changed to ON.")
-            bluetoothIOStartedHandler?()
+            serialQueue.async {
+                self.bluetoothIOStartedHandler?()
+            }
+            
             //        central.scanForPeripherals(withServices: wantedServices, options: nil)
             //        print("centralManagerDidUpdateState searching for BLE devices with services \(String(describing: wantedServices))...")
 
@@ -285,7 +289,10 @@ extension BluetoothIO : CBCentralManagerDelegate {
                 
                 peripheralsWithWantedServices.append(peripheral)
                 
-                discoveredPeripheralsHandler?(peripheral)
+                serialQueue.async {
+                    self.discoveredPeripheralsHandler?(peripheral)
+                }
+                
             }
             
             // Stop scanning when we've reached the max count.
@@ -303,7 +310,9 @@ extension BluetoothIO : CBCentralManagerDelegate {
         print("BluetoothIO did connect to peripheral \(peripheral).")
         
         connectedPeripherals.append(peripheral)
-        connectedPeripheralHandler?(peripheral)
+        serialQueue.async {
+            self.connectedPeripheralHandler?(peripheral)
+        }
     }
     
     public func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
@@ -314,7 +323,10 @@ extension BluetoothIO : CBCentralManagerDelegate {
         
         print("BluetoothIO Disconnected peripheral \(peripheral)")
         
-        disconnectedPeripheralHandler?(peripheral)
+        serialQueue.async {
+            self.disconnectedPeripheralHandler?(peripheral)
+        }
+        
         
         /// It's now safe to free the peripheral and manager
         if let idx = connectedPeripherals.index(of: peripheral) {
@@ -356,8 +368,10 @@ extension BluetoothIO : CBPeripheralDelegate {
             /// Request enumeration of service characteristics.
             //teotemp peripheral.discoverCharacteristics(wantedCharacteristics, for: service)
         }
+        serialQueue.async {
+            self.discoveredServicesHandler?(matchingServices)
+        }
         
-        discoveredServicesHandler?(matchingServices)
     }
     
     // FIXME: rewrite this to return the discovered characteristics rather than just calling them.
@@ -414,7 +428,10 @@ extension BluetoothIO : CBPeripheralDelegate {
             }
         }
         
-        discoveredCharacteristicsHandler?(matchingCharacteristics)
+        serialQueue.async {
+            self.discoveredCharacteristicsHandler?(matchingCharacteristics)
+        }
+        
         print("<<<<<<")
     }
     
