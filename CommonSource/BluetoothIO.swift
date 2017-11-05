@@ -73,13 +73,14 @@ open class BluetoothIO : NSObject {
     // Map of characteristic uuid to handler.
     var characteristicHandlers: [CBUUID : (CBCharacteristic) throws -> Void]!
     
-    
+ /* On reflection, making BluetoothUI a singleton doesn't really give any advantages.
+     On the contrary it introduces uncertainty about the state of the handlers (anything can set them).
     public static let sharedInstance : BluetoothIO = {
         
         let instance = BluetoothIO()
         return instance
     }()
-
+*/
     let serialQueue = DispatchQueue(label: "handler serial queue")
     // Call first to set up.
     
@@ -209,9 +210,9 @@ open class BluetoothIO : NSObject {
         
     }
     
-    override fileprivate init() {
-        
-    }
+//    override fileprivate init() {
+//
+//    }
 }
 
 extension BluetoothIO : CBCentralManagerDelegate {
