@@ -160,6 +160,17 @@ open class BluetoothIO : NSObject {
         }
     }
     
+    public func reconnect(peripherals: [CBPeripheral], handler: @escaping (CBPeripheral)->Void) {
+        
+        // Make an array of peripheral uuid's from the array of peripherals.
+        let peripheralIds = peripherals.map { $0.identifier }
+        
+        // Get an array of those peripherals that were retrievable.
+        let foundPeripherals = centralManager.retrievePeripherals(withIdentifiers: peripheralIds)
+        
+        // Connect to them and pass in the handler to be called on successful connection.
+        self.connect(peripherals: foundPeripherals, handler: handler)
+    }
 //    public func start(_ peripheralName: String, services: [CBUUID], characteristics: [CBUUID : [CBUUID]], handlers: [CBUUID : (CBCharacteristic) throws -> Void] ) {
 //
 //        wantedPeripheralName = peripheralName
