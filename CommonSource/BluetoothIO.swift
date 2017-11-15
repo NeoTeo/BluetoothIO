@@ -40,7 +40,13 @@ import CoreBluetooth
 // and one that is dynamic and handle updates.
 public enum BluetoothIOError : Error {
     case btNotTurnedOn
+    case peripheralFailedConnection(String)
     case unknownError
+}
+
+public enum Result<T> {
+    case Success(T)
+    case Failure(Error)
 }
 
 open class BluetoothIO : NSObject {
@@ -67,7 +73,7 @@ open class BluetoothIO : NSObject {
     var discoveredCharacteristicsHandler: (([CBCharacteristic]?)->Void)?
     
     // Called when a peripheral is connected.
-    var connectedPeripheralHandler: ((CBPeripheral)->Void)?
+    var connectedPeripheralHandler: ((Result<CBPeripheral>)->Void)?
     var disconnectedPeripheralHandler: ((CBPeripheral)->Void)?
     
     // Map of characteristic uuid to handler.
@@ -150,7 +156,7 @@ open class BluetoothIO : NSObject {
 //        characteristicHandlers = handlers
 //    }
     
-    public func connect(peripherals: [CBPeripheral], handler: @escaping (CBPeripheral)->Void) {
+    public func connect(peripherals: [CBPeripheral], handler: @escaping (Result<CBPeripheral>)->Void) {
         
         connectedPeripheralHandler = handler
         
@@ -160,17 +166,24 @@ open class BluetoothIO : NSObject {
         }
     }
     
-    public func reconnect(peripherals: [CBPeripheral], handler: @escaping (CBPeripheral)->Void) {
-        
-        // Make an array of peripheral uuid's from the array of peripherals.
-        let peripheralIds = peripherals.map { $0.identifier }
+    public func reconnect(peripheralIds: [UUID], handler: @escaping (Result<CBPeripheral>)->Void) {
         
         // Get an array of those peripherals that were retrievable.
         let foundPeripherals = centralManager.retrievePeripherals(withIdentifiers: peripheralIds)
         
         // Connect to them and pass in the handler to be called on successful connection.
         self.connect(peripherals: foundPeripherals, handler: handler)
+
     }
+    
+    public func reconnect(peripherals: [CBPeripheral], handler: @escaping (Result<CBPeripheral>)->Void) {
+        
+        // Make an array of peripheral uuid's from the array of peripherals.
+        let peripheralIds = peripherals.map { $0.identifier }
+        
+        reconnect(peripheralIds: peripheralIds, handler: handler)
+    }
+    
 //    public func start(_ peripheralName: String, services: [CBUUID], characteristics: [CBUUID : [CBUUID]], handlers: [CBUUID : (CBCharacteristic) throws -> Void] ) {
 //
 //        wantedPeripheralName = peripheralName
@@ -328,12 +341,15 @@ extension BluetoothIO : CBCentralManagerDelegate {
         
         connectedPeripherals.append(peripheral)
         serialQueue.async {
-            self.connectedPeripheralHandler?(peripheral)
+            self.connectedPeripheralHandler?(Result.Success(peripheral))
         }
     }
     
     public func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
         print("BluetoothIO: failed to connect to peripheral with error \(String(describing: error))")
+        serialQueue.async {
+            self.connectedPeripheralHandler?(Result.Failure(BluetoothIOError.peripheralFailedConnection(peripheral.identifier.uuidString)))
+        }
     }
     
     public func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
