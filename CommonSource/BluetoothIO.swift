@@ -187,7 +187,6 @@ open class BluetoothIO : NSObject {
             centralManager.stopScan()
         }
         
-//        guard let ap = activePeripheral else { return }
         for cp in connectedPeripherals {
             
             /// For each service go through each characteristic and disable notification if active.
@@ -199,7 +198,13 @@ open class BluetoothIO : NSObject {
             }
             print("BluetoothIO Cancelling peripheral connection to \(cp)")
             centralManager.cancelPeripheralConnection(cp)
+            
+            if let idx = connectedPeripherals.index(of: cp) {
+                connectedPeripherals.remove(at: idx)
+            }
         }
+     
+        centralManager = nil
     }
     
     public func pause() {
@@ -334,9 +339,9 @@ extension BluetoothIO : CBCentralManagerDelegate {
             connectedPeripherals.remove(at: idx)
         }
         
-        if connectedPeripherals.count == 0 {
-            centralManager = nil
-        }
+//        if connectedPeripherals.count == 0 {
+//            centralManager = nil
+//        }
     }
     
 }
