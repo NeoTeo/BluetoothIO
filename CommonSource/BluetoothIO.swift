@@ -166,10 +166,20 @@ open class BluetoothIO : NSObject {
         }
     }
     
+    public func disconnect(peripherals: [CBPeripheral], handler: @escaping (Result<CBPeripheral>)->Void) {
+        for peripheral in peripherals {
+            centralManager.cancelPeripheralConnection(peripheral)
+        }
+    }
+    
     public func reconnect(peripheralIds: [UUID], handler: @escaping (Result<CBPeripheral>)->Void) {
+        
         
         // Get an array of those peripherals that were retrievable.
         let foundPeripherals = centralManager.retrievePeripherals(withIdentifiers: peripheralIds)
+        
+        // FIXME: Add another layer to the attempt to reconnect: If foundPeripherals is empty
+        // try to reconnect by rescanning for the given peripherals.
         
         // Connect to them and pass in the handler to be called on successful connection.
         self.connect(peripherals: foundPeripherals, handler: handler)
