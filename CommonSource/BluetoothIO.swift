@@ -166,7 +166,7 @@ open class BluetoothIO : NSObject {
         }
     }
     
-    public func disconnect(peripherals: [CBPeripheral], handler: @escaping (Result<CBPeripheral>)->Void) {
+    public func disconnect(peripherals: [CBPeripheral]) {
         for peripheral in peripherals {
             centralManager.cancelPeripheralConnection(peripheral)
         }
