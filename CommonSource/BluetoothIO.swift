@@ -62,7 +62,7 @@ open class BluetoothIO : NSObject {
     var maxPeripheralCount: Int?
     
     var characteristicsForService: [CBUUID : [CBUUID]]?
-    var handlerForCharacteristic: [CBUUID : (CBCharacteristic) throws -> Void]!
+    var handlerForCharacteristic = [CBUUID : (CBCharacteristic) throws -> Void]()
     
     // Called on succesful startup
     var bluetoothIOStartedHandler: (()->Void)?
