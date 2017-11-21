@@ -105,7 +105,10 @@ open class BluetoothIO : NSObject {
 //        if self.handlerForCharacteristic != nil {
 //            self.handlerForCharacteristic.merge(handlerForCharacteristic, uniquingKeysWith: <#T##((CBCharacteristic) throws -> Void, (CBCharacteristic) throws -> Void) throws -> (CBCharacteristic) throws -> Void#>)
 //        }
-        self.handlerForCharacteristic = handlerForCharacteristic
+//        self.handlerForCharacteristic = handlerForCharacteristic
+        for handler in handlerForCharacteristic {
+            self.handlerForCharacteristic[handler.key] = handler.value
+        }
     }
 
     public func discoverPeripherals(name: String? = nil, serviceIds: [CBUUID]?, maxPeripheralCount: Int? = nil, handler: @escaping (CBPeripheral)->Void) throws {
