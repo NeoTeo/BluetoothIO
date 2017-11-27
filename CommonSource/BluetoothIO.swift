@@ -151,7 +151,7 @@ open class BluetoothIO : NSObject {
     
         if let wanted = wanted { characteristicsForService = [service.uuid : wanted] }
         
-        print("BluetoothIO: discoverCharacteristics called.")
+//        print("BluetoothIO: discoverCharacteristics called.")
         // peripheral.discoverCharacteristics(wantedCharacteristics, for: service)
         service.peripheral.discoverCharacteristics(wanted, for: service)
     }
@@ -164,7 +164,7 @@ open class BluetoothIO : NSObject {
         connectedPeripheralHandler = handler
         
         for peripheral in peripherals {
-            print("BluetoothIO requesting connect to \(peripheral.identifier)")
+//            print("BluetoothIO requesting connect to \(peripheral.identifier)")
             centralManager.connect(peripheral, options: nil)
         }
     }
