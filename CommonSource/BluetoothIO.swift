@@ -422,8 +422,8 @@ extension BluetoothIO : CBPeripheralDelegate {
     
     // FIXME: rewrite this to return the discovered characteristics rather than just calling them.
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        print(">>>>>>")
-        print("didDiscoverCharacteristicsFor \(service.uuid)")
+//        print(">>>>>>")
+//        print("didDiscoverCharacteristicsFor \(service.uuid)")
         
         guard error == nil else {
             print("There was an error discovering characteristics: \(String(describing: error))")
@@ -440,12 +440,12 @@ extension BluetoothIO : CBPeripheralDelegate {
             return
         }
         
-        print("Enabling sensors. There are \(foundCharacteristics.count) characteristics")
+//        print("Enabling sensors. There are \(foundCharacteristics.count) characteristics")
 
         var matchingCharacteristics: [CBCharacteristic]?
         
         for characteristic in foundCharacteristics {
-            print("Found characteristic uuid \(characteristic.uuid)")
+//            print("Found characteristic uuid \(characteristic.uuid)")
 
             // Request further descriptor for this characteristic.
             // This should be called only when specifically requesting info.
@@ -459,10 +459,9 @@ extension BluetoothIO : CBPeripheralDelegate {
         
             matchingCharacteristics = matchingCharacteristics ?? [CBCharacteristic]()
             matchingCharacteristics?.append(characteristic)
-            
+/*
             if characteristic.properties.contains(.notify) {
                 print("This characteristic will notify of updates.")
-                //peripheral.setNotifyValue(true, for: characteristic)
             }
             if characteristic.properties.contains(.read) {
                 
@@ -472,13 +471,14 @@ extension BluetoothIO : CBPeripheralDelegate {
             if characteristic.properties.contains(.write) {
                 print("This characteristic can be written to.")
             }
+ */
         }
         
         serialQueue.async {
             self.discoveredCharacteristicsHandler?(matchingCharacteristics)
         }
         
-        print("<<<<<<")
+//        print("<<<<<<")
     }
     
     public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
