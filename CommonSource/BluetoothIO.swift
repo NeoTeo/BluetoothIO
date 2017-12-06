@@ -68,7 +68,7 @@ open class BluetoothIO : NSObject {
     var bluetoothIOStartedHandler: (()->Void)?
     
     // Methods for handling the discovery of Peripherals, Services and Characteristics.
-    var discoveredPeripheralsHandler: ((CBPeripheral)->Void)?
+    var discoveredPeripheralsHandler: ((CBPeripheral, [String : Any])->Void)?
     var discoveredServicesHandler: (([CBService]?)->Void)?
     var discoveredCharacteristicsHandler: (([CBCharacteristic]?)->Void)?
     
@@ -111,7 +111,10 @@ open class BluetoothIO : NSObject {
         }
     }
 
-    public func discoverPeripherals(name: String? = nil, serviceIds: [CBUUID]?, maxPeripheralCount: Int? = nil, handler: @escaping (CBPeripheral)->Void) throws {
+    public func discoverPeripherals(name: String? = nil,
+                                    serviceIds: [CBUUID]?,
+                                    maxPeripheralCount: Int? = nil,
+                                    handler: @escaping (CBPeripheral, [String : Any])->Void) throws {
         
         guard centralManager?.state == .poweredOn else { throw BluetoothIOError.btNotTurnedOn }
         
@@ -119,7 +122,7 @@ open class BluetoothIO : NSObject {
         
         wantedPeripheralName = name
         wantedServices = serviceIds
-
+        
         self.maxPeripheralCount = maxPeripheralCount
         
         discoveredPeripheralsHandler = handler
@@ -334,7 +337,7 @@ extension BluetoothIO : CBCentralManagerDelegate {
                 peripheralsWithWantedServices.append(peripheral)
                 
                 serialQueue.async {
-                    self.discoveredPeripheralsHandler?(peripheral)
+                    self.discoveredPeripheralsHandler?(peripheral, advertisementData)
                 }
                 
             }
