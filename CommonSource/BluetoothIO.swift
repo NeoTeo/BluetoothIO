@@ -291,6 +291,7 @@ extension BluetoothIO : CBCentralManagerDelegate {
 
         // TODO: look for CBAdvertisementDataServiceUUIDsKey match as well.
         /// See if the device name matches what we're looking for.
+        print("BluetoothIO: advertisement data: \(advertisementData)")
         
         activePeripheral = nil
 //        var activePeripheral: CBPeripheral?
@@ -394,7 +395,7 @@ extension BluetoothIO : CBPeripheralDelegate {
 //            print("No services to look for! Exiting")
 //            return
 //        }
-        print("Evaluating service.")
+//        print("Evaluating service.")
 
         guard let services = peripheral.services else {
             print("Peripheral \(peripheral.identifier) has no services. Returning.")
