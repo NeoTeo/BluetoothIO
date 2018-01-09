@@ -486,7 +486,8 @@ extension BluetoothIO : CBPeripheralDelegate {
     }
     
     public func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
-        print("Peripheral \(peripheral) did update notification for \(characteristic.uuid).")
+        print("BluetoothIO: Peripheral \(peripheral) did update notification for \(characteristic.uuid).")
+        print("BluetoothIO: characteristic isNotifying is: \(characteristic.isNotifying)")
     }
     
     public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
