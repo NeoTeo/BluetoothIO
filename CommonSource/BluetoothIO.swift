@@ -186,7 +186,9 @@ open class BluetoothIO : NSObject {
         
         // FIXME: Add another layer to the attempt to reconnect: If foundPeripherals is empty
         // try to reconnect by rescanning for the given peripherals.
-        print("BluetoothIO Warning; reconnect foundPeripherals is nil")
+        if foundPeripherals.count == 0 {
+            print("BluetoothIO Warning; reconnect foundPeripherals is nil")
+        }
         // Connect to them and pass in the handler to be called on successful connection.
         self.connect(peripherals: foundPeripherals, handler: handler)
 
@@ -488,6 +490,9 @@ extension BluetoothIO : CBPeripheralDelegate {
     public func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
         print("BluetoothIO: Peripheral \(peripheral) did update notification for \(characteristic.uuid).")
         print("BluetoothIO: characteristic isNotifying is: \(characteristic.isNotifying)")
+        do { try handlerForCharacteristic[characteristic.uuid]?(characteristic) } catch {
+            print("Error: ", error, "in characteristic handler.")
+        }
     }
     
     public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
@@ -502,7 +507,7 @@ extension BluetoothIO : CBPeripheralDelegate {
     }
     
     public func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
-        print("Peripheral \(peripheral) did write value for \(characteristic.uuid).")
+        print("BluetoothIO: Peripheral \(peripheral) did write value for \(characteristic.uuid).")
         guard error == nil else {
             print("There was an error writing to the characteristic \(characteristic): \(String(describing: error))")
             return
@@ -517,7 +522,7 @@ extension BluetoothIO : CBPeripheralDelegate {
     
     // MARK: descriptor discovery and updating methods. Currently for debugging only.
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverDescriptorsFor characteristic: CBCharacteristic, error: Error?) {
-            print("The characteristic \(characteristic) descriptors are \(String(describing: characteristic.descriptors))")
+            print("BluetoothIO: The characteristic \(characteristic) descriptors are \(String(describing: characteristic.descriptors))")
         guard let tors = characteristic.descriptors else { return }
         for desc in tors {
             peripheral.readValue(for: desc)
@@ -525,7 +530,7 @@ extension BluetoothIO : CBPeripheralDelegate {
     }
     
     public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor descriptor: CBDescriptor, error: Error?) {
-        print("The descriptor \(descriptor.description) for characteristic \(descriptor.characteristic) value was \(String(describing: descriptor.value))")
+        print("BluetoothIO: The descriptor \(descriptor.description) for characteristic \(descriptor.characteristic) value was \(String(describing: descriptor.value))")
     }
 }
 
