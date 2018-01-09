@@ -485,9 +485,13 @@ extension BluetoothIO : CBPeripheralDelegate {
 //        print("<<<<<<")
     }
     
+    public func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
+        print("Peripheral \(peripheral) did update notification for \(characteristic.uuid).")
+    }
+    
     public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         
-        print("Peripheral \(peripheral) did update value for \(characteristic.uuid).")
+//        print("Peripheral \(peripheral) did update value for \(characteristic.uuid).")
         
         /// This is where we would pass the characteristic to the handler.
         do { try handlerForCharacteristic[characteristic.uuid]?(characteristic) } catch {
@@ -497,6 +501,7 @@ extension BluetoothIO : CBPeripheralDelegate {
     }
     
     public func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
+        print("Peripheral \(peripheral) did write value for \(characteristic.uuid).")
         guard error == nil else {
             print("There was an error writing to the characteristic \(characteristic): \(String(describing: error))")
             return
