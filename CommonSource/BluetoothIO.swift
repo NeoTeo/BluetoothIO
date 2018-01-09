@@ -186,7 +186,7 @@ open class BluetoothIO : NSObject {
         
         // FIXME: Add another layer to the attempt to reconnect: If foundPeripherals is empty
         // try to reconnect by rescanning for the given peripherals.
-        
+        print("BluetoothIO Warning; reconnect foundPeripherals is nil")
         // Connect to them and pass in the handler to be called on successful connection.
         self.connect(peripherals: foundPeripherals, handler: handler)
 
@@ -487,7 +487,7 @@ extension BluetoothIO : CBPeripheralDelegate {
     
     public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         
-        //print("Peripheral \(peripheral) did update value for \(characteristic.uuid).")
+        print("Peripheral \(peripheral) did update value for \(characteristic.uuid).")
         
         /// This is where we would pass the characteristic to the handler.
         do { try handlerForCharacteristic[characteristic.uuid]?(characteristic) } catch {
