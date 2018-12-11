@@ -9,9 +9,6 @@
 /* Begin PBXBuildFile section */
 		AB58DE401F75211E00D45242 /* BluetoothIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB58DE361F75211E00D45242 /* BluetoothIO.framework */; };
 		AB58DE6B1F75217D00D45242 /* BluetoothIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB58DE621F75217D00D45242 /* BluetoothIO.framework */; };
-		AB58DE7F1F7523B000D45242 /* BluetoothIO.h in Headers */ = {isa = PBXBuildFile; fileRef = AB58DE7A1F75231700D45242 /* BluetoothIO.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AB58DE801F7523B100D45242 /* BluetoothIO.h in Headers */ = {isa = PBXBuildFile; fileRef = AB58DE7A1F75231700D45242 /* BluetoothIO.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AB58DE811F7523B200D45242 /* BluetoothIO.h in Headers */ = {isa = PBXBuildFile; fileRef = AB58DE7A1F75231700D45242 /* BluetoothIO.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		AB58DE821F7523E800D45242 /* BluetoothIO_iOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58DE7D1F75236E00D45242 /* BluetoothIO_iOSTests.swift */; };
 		AB58DE831F7523E900D45242 /* BluetoothIO_iOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58DE7D1F75236E00D45242 /* BluetoothIO_iOSTests.swift */; };
 		AB58DE851F75252700D45242 /* BluetoothIO.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58DE841F75252700D45242 /* BluetoothIO.swift */; };
@@ -42,7 +39,6 @@
 		AB58DE551F75215F00D45242 /* BluetoothIO.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BluetoothIO.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB58DE621F75217D00D45242 /* BluetoothIO.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BluetoothIO.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB58DE6A1F75217D00D45242 /* BluetoothIO_macOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BluetoothIO_macOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		AB58DE7A1F75231700D45242 /* BluetoothIO.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BluetoothIO.h; sourceTree = "<group>"; };
 		AB58DE7B1F75231700D45242 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AB58DE7D1F75236E00D45242 /* BluetoothIO_iOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothIO_iOSTests.swift; sourceTree = "<group>"; };
 		AB58DE7E1F75236E00D45242 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -115,7 +111,6 @@
 			isa = PBXGroup;
 			children = (
 				AB58DE841F75252700D45242 /* BluetoothIO.swift */,
-				AB58DE7A1F75231700D45242 /* BluetoothIO.h */,
 				AB58DE7B1F75231700D45242 /* Info.plist */,
 			);
 			path = CommonSource;
@@ -137,7 +132,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB58DE7F1F7523B000D45242 /* BluetoothIO.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -145,7 +139,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB58DE801F7523B100D45242 /* BluetoothIO.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -153,7 +146,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB58DE811F7523B200D45242 /* BluetoothIO.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
