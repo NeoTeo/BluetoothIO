@@ -72,6 +72,9 @@ open class BluetoothIO : NSObject {
     var discoveredServicesHandler: (([CBService]?)->Void)?
     var discoveredCharacteristicsHandler: (([CBCharacteristic]?)->Void)?
     
+    // External handler for service modification
+    var modifiedServicesHandler: (([CBService]?)->Void)?
+    
     // Called when a peripheral is connected.
     var connectedPeripheralHandler: ((Result<CBPeripheral>)->Void)?
     var disconnectedPeripheralHandler: ((CBPeripheral)->Void)?
@@ -407,7 +410,7 @@ extension BluetoothIO : CBPeripheralDelegate {
             return
         }
         
-        var matchingServices: [CBService]?
+        var matchingServices: [CBService]!
         
         for service in services {
             // Skip if we are looking for specific services and this service is not one of them.
@@ -415,7 +418,7 @@ extension BluetoothIO : CBPeripheralDelegate {
                 wantedServices.contains(service.uuid) == false { continue }
             
             matchingServices = matchingServices ?? [CBService]()
-            matchingServices!.append(service)
+            matchingServices.append(service)
             //teotemp let wantedCharacteristics = characteristicsForService?[service.uuid]
             /// Request enumeration of service characteristics.
             //teotemp peripheral.discoverCharacteristics(wantedCharacteristics, for: service)
@@ -423,7 +426,23 @@ extension BluetoothIO : CBPeripheralDelegate {
         serialQueue.async {
             self.discoveredServicesHandler?(matchingServices)
         }
+    }
+    
+    public func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
+        print("BluetoothIO: peripheral services modified.")
         
+        var invalidatedWantedServices: [CBService]!
+        // Filter out unwanted services and call external handler
+        for invService in invalidatedServices {
+            // Skip if we are looking for specific services and this service is not one of them.
+            if let wantedServices = wantedServices,
+                wantedServices.contains(invService.uuid) == false { continue }
+
+            invalidatedWantedServices = invalidatedWantedServices ?? [CBService]()
+            invalidatedWantedServices.append(invService)
+        }
+        
+        modifiedServicesHandler?(invalidatedWantedServices)
     }
     
     // FIXME: rewrite this to return the discovered characteristics rather than just calling them.
