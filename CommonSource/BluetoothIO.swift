@@ -99,6 +99,10 @@ open class BluetoothIO : NSObject {
 //        self.handlerForCharacteristic = handlerForCharacteristic
 //    }
 
+    public func set(handlerForModifiedServices: (([CBService]?)->Void)?) {
+        modifiedServicesHandler = handlerForModifiedServices
+    }
+    
     public func set(handlerForDisconnection: ((CBPeripheral)->Void)?) {
         disconnectedPeripheralHandler = handlerForDisconnection
     }
