@@ -428,6 +428,10 @@ extension BluetoothIO : CBPeripheralDelegate {
         }
     }
     
+    // Called when a peripheral's services change.
+    // If there are invalidated services they will be enumerated.
+    // If there are new services or to check if the invalidated services have been moved,
+    // the user would have to invoke discoverServices again.
     public func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
         print("BluetoothIO: peripheral services modified.")
         
