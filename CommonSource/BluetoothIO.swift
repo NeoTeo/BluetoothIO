@@ -389,6 +389,8 @@ extension BluetoothIO : CBCentralManagerDelegate {
     public func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         
         print("BluetoothIO: did connect to peripheral \(peripheral).")
+        // If there's a connection timeout, invalidate it.
+        connectionTimeoutTimer?.invalidate()
         
         connectedPeripherals.append(peripheral)
         serialQueue.async {
