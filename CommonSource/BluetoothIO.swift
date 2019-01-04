@@ -363,7 +363,7 @@ extension BluetoothIO : CBCentralManagerDelegate {
     /** Called on successful connection with peripheral. */
     public func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         
-        print("BluetoothIO did connect to peripheral \(peripheral).")
+        print("BluetoothIO: did connect to peripheral \(peripheral).")
         
         connectedPeripherals.append(peripheral)
         serialQueue.async {
@@ -380,11 +380,11 @@ extension BluetoothIO : CBCentralManagerDelegate {
     
     public func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         
-        print("BluetoothIO Disconnected peripheral \(peripheral)")
-        
-        serialQueue.async {
+        print("BluetoothIO: Disconnected peripheral \(peripheral)")
+        print("Thread is \(Thread.current.description)")
+//        serialQueue.async {
             self.disconnectedPeripheralHandler?(peripheral)
-        }
+//        }
         
         
         /// It's now safe to free the peripheral and manager
