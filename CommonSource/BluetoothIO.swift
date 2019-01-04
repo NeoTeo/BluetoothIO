@@ -175,7 +175,7 @@ open class BluetoothIO : NSObject {
     
     func startDisconnectTimer(timeout: TimeInterval, for peripherals: [CBPeripheral]) {
         // Create a timeout timer
-        connectionTimeoutTimer = Timer(timeInterval: timeout, repeats: false) { _ in
+        connectionTimeoutTimer = Timer.scheduledTimer(withTimeInterval: timeout, repeats: false) { _ in
             print("connection attempt timed out.")
             self.disconnect(peripherals: peripherals)
         }
