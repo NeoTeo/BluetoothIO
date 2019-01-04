@@ -92,6 +92,9 @@ open class BluetoothIO : NSObject {
 */
     let serialQueue = DispatchQueue(label: "handler serial queue")
     // Call first to set up.
+  
+    // A timer used to provide timeout ability to a connection attempt
+    var connectionTimeoutTimer: Timer?
     
 //    public func set(characteristicsForService: [CBUUID : [CBUUID]], handlerForCharacteristic: [CBUUID : (CBCharacteristic) throws -> Void] ) {
 //
@@ -169,6 +172,21 @@ open class BluetoothIO : NSObject {
 //        characteristicHandlers = handlers
 //    }
     
+    
+    func startDisconnectTimer(timeout: TimeInterval, for peripherals: [CBPeripheral]) {
+        // Create a timeout timer
+        connectionTimeoutTimer = Timer(timeInterval: timeout, repeats: false) { _ in
+            print("connection attempt timed out.")
+            self.disconnect(peripherals: peripherals)
+        }
+    }
+    
+    // Connect to the given peripherals but fail if not connected within the given timeout.
+    public func connect(peripherals: [CBPeripheral], timeout: TimeInterval, handler: @escaping (Result<CBPeripheral>)->Void) {
+        startDisconnectTimer(timeout: timeout, for: peripherals)
+        connect(peripherals: peripherals, handler: handler)
+    }
+    
     public func connect(peripherals: [CBPeripheral], handler: @escaping (Result<CBPeripheral>)->Void) {
         
         connectedPeripheralHandler = handler
@@ -183,6 +201,12 @@ open class BluetoothIO : NSObject {
         for peripheral in peripherals {
             centralManager.cancelPeripheralConnection(peripheral)
         }
+    }
+    
+    public func reconnect(peripheralIds: [UUID], timeout: TimeInterval, handler: @escaping (Result<CBPeripheral>)->Void) {
+        let foundPeripherals = centralManager.retrievePeripherals(withIdentifiers: peripheralIds)
+        startDisconnectTimer(timeout: timeout, for: foundPeripherals)
+        self.reconnect(peripheralIds: peripheralIds, handler: handler)
     }
     
     public func reconnect(peripheralIds: [UUID], handler: @escaping (Result<CBPeripheral>)->Void) {
@@ -382,9 +406,9 @@ extension BluetoothIO : CBCentralManagerDelegate {
         
         print("BluetoothIO: Disconnected peripheral \(peripheral)")
         print("Thread is \(Thread.current.description)")
-//        serialQueue.async {
+        serialQueue.async {
             self.disconnectedPeripheralHandler?(peripheral)
-//        }
+        }
         
         
         /// It's now safe to free the peripheral and manager
